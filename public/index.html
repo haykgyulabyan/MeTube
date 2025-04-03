@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MeTube</title>
+</head>
+<body>
+<h1>MeTube</h1>
+<video id="videoPlayer" controls width="600"></video>
+<h2>Videos</h2>
+<ul id="videoList"></ul>
+<h2>Upload New Video</h2>
+<form id="uploadForm">
+  <input type="text" name="title" placeholder="Title">
+  <input type="file" name="video" accept="video/*">
+  <button type="submit">Upload</button>
+</form>
+<script>
+  fetch('/api/videos')
+    .then(response => response.json())
+    .then(videos => {
+      const videoList = document.getElementById('videoList');
+      videos.forEach(video => {
+        const li = document.createElement('li');
+        const button = document.createElement('button');
+        button.textContent = video.title;
+        button.addEventListener('click', () => {
+          const videoPlayer = document.getElementById('videoPlayer');
+          videoPlayer.src = video.filePath;
+          videoPlayer.load();
+          videoPlayer.play();
+        });
+        li.appendChild(button);
+        videoList.appendChild(li);
+      });
+    });
+
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/api/videos', {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(video => {
+        const videoList = document.getElementById('videoList');
+        const li = document.createElement('li');
+        const button = document.createElement('button');
+        button.textContent = video.title;
+        button.addEventListener('click', () => {
+          const videoPlayer = document.getElementById('videoPlayer');
+          videoPlayer.src = video.filePath;
+          videoPlayer.load();
+          videoPlayer.play();
+        });
+        li.appendChild(button);
+        videoList.appendChild(li);
+      });
+  });
+</script>
+</body>
+</html>
